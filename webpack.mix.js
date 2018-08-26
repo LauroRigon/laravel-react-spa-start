@@ -19,6 +19,13 @@ mix.webpackConfig({
     fs: "empty",
     module: "empty"
   },
+
+  resolve: {
+    alias: {
+      //app: path.resolve(__dirname, 'resources', 'assets', 'js', 'app')
+      app: path.resolve(__dirname, 'resources', 'assets', 'js', 'app')
+    }
+  }
 });
 
 Mix.listen("configReady", webpackConfig => {
@@ -54,7 +61,7 @@ Mix.listen("configReady", webpackConfig => {
  |
  */
 
-mix.react('resources/assets/js/index.js', 'public/js/app.js')
-  .sass('resources/assets/sass/app.scss', 'public/css');
+mix.react('resources/assets/js/app/index.js', 'public/js/app.js')
+  .sass('resources/assets/sass/app/app.scss', 'public/css');
 
 mix.browserSync('localhost:8000');

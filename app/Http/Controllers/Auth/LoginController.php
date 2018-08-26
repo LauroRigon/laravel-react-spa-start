@@ -63,7 +63,7 @@ class LoginController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                'user' => $user,
+                'account' => $user,
                 'authToken' => $authToken
             ]
         ],200);

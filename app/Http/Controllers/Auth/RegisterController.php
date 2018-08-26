@@ -32,7 +32,7 @@ class RegisterController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('guest');
+        $this->middleware('guest')->except('reSendVerificationLink');
     }
 
     /**
@@ -73,16 +73,7 @@ class RegisterController extends Controller
             'is_verified' => 0
         ]);
 
-        $verification_code = str_random(30);
-
-        DB::table('user_verifications')->insert([
-            'user_id' => $user->id,
-            'token' => $verification_code
-        ]);
-
-        $resetLink = route('email.verify', ['verification_code' => $verification_code]);
-
-        Mail::to($user)->send(new UserVerificationToken($user, $resetLink));
+        $this->sendVerificationLink($user);
 
         $authToken = JWTAuth::fromUser($user);
 
@@ -94,6 +85,46 @@ class RegisterController extends Controller
                 'authToken' => $authToken
             ]
         ], 201);
+    }
+
+    public function sendVerificationLink($user)
+    {
+        $verification_code = str_random(30);
+
+        DB::table('user_verifications')->insert([
+            'user_id' => $user->id,
+            'token' => $verification_code
+        ]);
+
+        $resetLink = route('email.verify', ['verification_code' => $verification_code]);
+
+        Mail::to($user)->sendNow(new UserVerificationToken($user, $resetLink));
+
+        return Mail::failures();
+    }
+
+    public function reSendVerificationLink(Request $request)
+    {
+        $this->validate($request, ['token' => 'required']);
+        $user = null;
+
+        try {
+            $user = JWTAuth::user();
+
+        } catch(JWTException $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+
+        $this->sendVerificationLink($user);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Um email com o link de verificação foi enviado!'
+        ], 200);
+
     }
 
     /**

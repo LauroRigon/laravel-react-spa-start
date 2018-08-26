@@ -21,6 +21,7 @@ Route::post('password/reset', 'Auth\ResetPasswordController@reset');
 
 Route::middleware('jwt.auth')->group(function() {
     Route::get('logout', 'Auth\LoginController@logout');
+    Route::get('sendVerificationLink', 'Auth\RegisterController@reSendVerificationLink');
 
     Route::get('test', function(){
       return response()->json(['eita' => 'sera q deu']);
